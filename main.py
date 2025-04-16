@@ -1,7 +1,7 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 from app_types import ChatRequestProps
 
 load_dotenv()
@@ -24,8 +24,20 @@ async def ask_question(request: ChatRequestProps):
         return {
             "response": assistant_message
         }
+    except OpenAIError as e:
+        print(f'ERROR: {str(e)}')
+        return {
+            "response": "I'm having trouble connecting to the AI service right now. Please try again in a few moments.",
+            "error": "openai_error",
+            "details": str(e)
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f'ERROR: {str(e)}')
+        return {
+            "response": "An unexpected error occurred. Our team has been notified.",
+            "error": "internal_error",
+            "details": str(e)
+        }
 
 if __name__ == "__main__":
     import uvicorn
