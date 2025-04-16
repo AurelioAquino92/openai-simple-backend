@@ -22,19 +22,22 @@ async def ask_question(request: ChatRequestProps):
         assistant_message = response.choices[0].message.content
         
         return {
-            "response": assistant_message
+            "role": "assistant",
+            "content": assistant_message
         }
     except OpenAIError as e:
         print(f'ERROR: {str(e)}')
         return {
-            "response": "I'm having trouble connecting to the AI service right now. Please try again in a few moments.",
+            "role": "assistant",
+            "content": "I'm having trouble connecting to the AI service right now. Please try again in a few moments.",
             "error": "openai_error",
             "details": str(e)
         }
     except Exception as e:
         print(f'ERROR: {str(e)}')
         return {
-            "response": "An unexpected error occurred. Our team has been notified.",
+            "role": "assistant",
+            "content": "An unexpected error occurred. Our team has been notified.",
             "error": "internal_error",
             "details": str(e)
         }
