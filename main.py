@@ -8,13 +8,14 @@ from app_types import ChatRequestProps, Message
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+allowed_origin = os.getenv("ALLOWED_ORIGIN")
 
 app = FastAPI()
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Add your allowed origins here
+    allow_origins=[allowed_origin],  # Add your allowed origins here
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
