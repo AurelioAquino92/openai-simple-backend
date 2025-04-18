@@ -2,6 +2,8 @@
 
 A FastAPI-based backend service that provides a simple interface to interact with OpenAI's chat completion API with streaming support.
 
+> **My Deployed Live Demo**: [API Documentation](http://openai-simple-backend-production.up.railway.app/docs)
+
 ## Features
 
 - Simple POST endpoint for chat completions
