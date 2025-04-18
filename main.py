@@ -1,9 +1,10 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
-from app_types import ChatRequestProps
+from app_types import ChatRequestProps, Message
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -19,20 +20,25 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+def stream_text(messages: list[Message]):
+    stream = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        stream=True
+    )
+    for chunk in stream:
+        for choice in chunk.choices:
+            if choice.finish_reason == "stop":
+                break
+            else:
+                yield "{text}".format(text=choice.delta.content)
+
 @app.post("/ask")
 async def ask_question(request: ChatRequestProps):
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=request.messages
-        )
-        
-        assistant_message = response.choices[0].message.content
-        
-        return {
-            "role": "assistant",
-            "content": assistant_message
-        }
+        response = StreamingResponse(stream_text(request.messages))
+        response.headers['x-vercel-ai-data-stream'] = 'v1'
+        return response
     except OpenAIError as e:
         print(f'ERROR: {str(e)}')
         return {
